@@ -20,7 +20,7 @@ Example Usage:
       if (req.session.admin === true) {
         next();
       } else {
-        res.json({status: 'forbidden'}).status(403)
+        res.status(403).json({status: 'nope'})
       }
     }
   }
