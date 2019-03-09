@@ -4,7 +4,7 @@ module.exports = function (onError) {
   }
   return function (req, res, resolve) {
     try {
-      let route = req.__switchboard_route;
+      let route = req._switchboard_route;
       if (route.policy) {
         route.policy(req, res, resolve);
       } else {
