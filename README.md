@@ -1,5 +1,7 @@
 # Express SwitchBoard Policies
 
+[![Build Status](https://travis-ci.org/charliemitchell/express-switchboard-policies.svg?branch=master)](https://travis-ci.org/charliemitchell/express-switchboard-policies) [![Coverage Status](https://coveralls.io/repos/github/charliemitchell/express-switchboard-policies/badge.svg?branch=master)](https://coveralls.io/github/charliemitchell/express-switchboard-policies?branch=master)
+
 This is a plugin for Express SwitchBoard. The purpose of this plugin is help organize authorize policies in a concise way.
 
 Example Usage:
