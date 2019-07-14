@@ -14,7 +14,6 @@ Example Usage:
           resolve();
         } else {
           res.status(403).json({ status: 'nope' });
-          reject();
         }
       });
 
@@ -24,8 +23,7 @@ Example Usage:
 
 ```js
 // routes/admin.js
-
-const switchboardPolicies = require('../policies/default-policies-conf.js');
+const switchboardPolicyPlugin = require('express-switchboard-policies');
 const { admin } = require('../policies/access-policies.js');
 
 module.exports = [
@@ -33,7 +31,7 @@ module.exports = [
     {
       path: '/admin/stuff',
       action: 'getAdminStuff',
-      plugins: [ switchboardPolicies ],
+      plugins: [ switchboardPolicyPlugin ],
       policy: admin
     }
   ]
