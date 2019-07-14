@@ -1,48 +1,40 @@
-var assert = require('assert');
+var assert = require('chai').assert;
 var plugin = require('../index');
 
-const requestWithNoPolicy = { __switchboard_route: {} };
+describe('Errors', () => {
 
-const requestWithPolicyError = { 
-  __switchboard_route: { 
-    policy () { throw new Error() }
-  }
-};
+  it('makes it clear that a promise must be returned', function () {
 
-const requestWithNoPolicyError = { 
-  __switchboard_route: { 
-    policy () { }
-  }
-};
+    let pluginMethod = plugin();
+    const request = {
+      originalUrl: '/posts/88764',
+      _switchboard_route: {
+        policy () { return true; }
+      }
+    };
 
-describe('Error handler', () => {
-  
-  it('requires an error handler', () => {
     assert.throws(() => {
-      plugin();
-    });
+      pluginMethod(request, {}, function () {});
+    }, Error, 'There was an error implementing a switchboard policy.\nURL: /posts/88764.\nError Detection: Your policy must return a promise. Did you return a promise?\n\nOriginal Error:\nroute.policy(...).then is not a function');
   });
 
-  it('does not throw when an error handler is required', () => {
-    assert.doesNotThrow(() => {
-      plugin(() => {});
-    });
-  });
+  it('propagates an error', function () {
 
-  it('calls the error handler when there is an error', () => {
-    let error = false;
-    let pluginmethod = plugin(err => { error = true });
-    pluginmethod(requestWithPolicyError, {}, function () {});
-    assert.equal(error, true);
-  });
+    let pluginMethod = plugin();
+    const request = {
+      originalUrl: '/posts/88764',
+      _switchboard_route: {
+        policy () {
+          let isError = {};
+          isError.undef();
+        }
+      }
+    };
 
-  it('does not call the error handler when there is no error', () => {
-    let error = false;
-    let pluginmethod = plugin(err => { error = true;});
-    pluginmethod(requestWithNoPolicyError, {}, function () {});
-    assert.equal(error, false);
+    assert.throws(() => {
+      pluginMethod(request, {}, function () {});
+    }, Error, 'There was an error implementing a switchboard policy.\nURL: /posts/88764.\nError Detection: N/A\n\nOriginal Error:\nisError.undef is not a function');
   });
-
 });
 
 
@@ -50,42 +42,39 @@ describe('Policies', () => {
 
   it('invokes the callback when there is no policy', () => {
     let invoked = false;
-    let pluginmethod = plugin(err => {});
-    pluginmethod(requestWithNoPolicy, {}, function () { invoked = true; });
+    let pluginMethod = plugin();
+    pluginMethod({ _switchboard_route: {} }, {}, function () { invoked = true; });
     assert.equal(invoked, true);
   });
 
   it('invokes the policy when there is a policy', () => {
     let invoked = false;
-    const request = { 
-      __switchboard_route: { 
-        policy () { invoked = true }
+    const request = {
+      _switchboard_route: {
+        policy () { invoked = true; return Promise.resolve(); }
       }
     };
-    let pluginmethod = plugin(err => {});
-    pluginmethod(request, {}, function () { });
+    let pluginMethod = plugin(err => {});
+    pluginMethod(request, {}, function () { });
     assert.equal(invoked, true);
   });
 
   it('passes the correct arguments to the policy', () => {
-    let invokedCallback = false;
-    const callback = function () { invokedCallback = true };
-    let pluginmethod = plugin(err => {});
     const response = { };
+    let pluginMethod = plugin();
     const request = {
-      __switchboard_route: { 
-        policy (req, res, next) {
+      _switchboard_route: {
+        policy (req, res) {
           req.isReq = true;
           res.isResponse = true;
-          next();
+          return Promise.resolve();
         }
       }
     };
-    
-    pluginmethod(request, response, callback);
+
+    pluginMethod(request, response);
     assert.equal(request.isReq, true);
     assert.equal(response.isResponse, true);
-    assert.equal(invokedCallback, true);
   });
 
 });

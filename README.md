@@ -5,23 +5,19 @@ This is a plugin for Express SwitchBoard. The purpose of this plugin is help org
 Example Usage:
 
 ```js
-  // policies/default-policies-conf.js
-  const switchboardPolicies = require('express-switchboard-policies');
-  const policies = switchboardPolicies( (err, req, res, resolve) => {
-    res.status(500).send();
-  });
-  module.exports = policies;
-```
-
-```js
   // policies/access-policies.js
   module.exports = {
-    admin (req, res, next) {
-      if (req.session.admin === true) {
-        next();
-      } else {
-        res.status(403).json({status: 'nope'})
-      }
+    admin (req, res) {
+
+      return new Promise((resolve, reject) => {
+        if (req.session.admin === true) {
+          resolve();
+        } else {
+          res.status(403).json({ status: 'nope' });
+          reject();
+        }
+      });
+
     }
   }
 ```
