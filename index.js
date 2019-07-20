@@ -1,17 +1,12 @@
 const buildErrorMessage = require('./build-error-message');
 
 module.exports = function switchboardPolicy () {
-  return function (req, res, next) {
+  return function (req, res) {
     let route = req._switchboard_route;
     if (route.policy) {
-      try {
-        route.policy(req, res).then(next)
-      } catch (err) {
-        buildErrorMessage(err, req);
-        throw err;
-      }
+      return route.policy(req, res);
     } else {
-      next();
+      return Promise.resolve();
     }
   }
 }
